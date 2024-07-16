@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping List</title>
+    <style>
+        .purchased {
+            text-decoration: line-through; 
+            color: rgb(241, 35, 35); 
+        }
+        .editing {
+            background-color: #f0f0f0; 
+        }
+    </style>
+</head>
+<body>
+    <h2>Shopping List</h2>
+    <div>
+        <input type="text" id="itemInput" placeholder="Enter item">
+        <button onclick="addItem()">Add</button>
+        <button onclick="markPurchased()">Mark Purchased</button>
+        <button onclick="clearList()">Clear List</button>
+    </div>
+    <ul id="itemList">
+        
+    </ul>
+
+    <script>
+        // This Function will load items from the local storage(if they are there)
+function loadItems() {
+    let items = localStorage.getItem("shoppingList");
+    if (items) {
+        return JSON.parse(items);
+    } else {
+        return [];
+    }
+}
+
+// This Function will save items from local storage
+function saveItems(items) {
+    localStorage.setItem("shoppingList", JSON.stringify(items));
+}
+
+// This Function will initialize the shopping list
+let shoppingList = loadItems();
+
+// This Function will render items to the list
+function renderItems() {
+    let itemList = document.getElementById("itemList");
+    itemList.innerHTML = ""; 
+
+    shoppingList.forEach((item, index) => {
+        let listItem = document.createElement("li");
+        listItem.textContent = item.name;
+        if (item.purchased) {
+            listItem.classList.add("purchased");
+        }
+        listItem.addEventListener("click", function() {
+            togglePurchased(index);
+        });
+
+        let editButton = document.createElement("button");
+        editButton.textContent = "Edit";
+        editButton.addEventListener("click", function() {
+            editItem(index);
+        });
+
+        listItem.appendChild(editButton);
+        itemList.appendChild(listItem);
+    });
+}
+
+// This Function will add a New item to the list
+function addItem() {
+    let itemInput = document.getElementById("itemInput");
+    let itemName = itemInput.value.trim();
+
+    if (itemName !== "") {
+        shoppingList.push({ name: itemName, purchased: false });
+        saveItems(shoppingList);
+        renderItems();
+        itemInput.value = ""; 
+    }
+}
+
+// This Function will mark items as purchased
+function togglePurchased(index) {
+    shoppingList[index].purchased = !shoppingList[index].purchased;
+    saveItems(shoppingList);
+    renderItems();
+}
+
+// This Function will clear the entire list
+function clearList() {
+    shoppingList = [];
+    saveItems(shoppingList);
+    renderItems();
+}
+
+// This Function will edit an existing list
+function editItem(index) {
+    let newName = prompt("Enter new name for item:", shoppingList[index].name);
+    if (newName && newName.trim() !== "") {
+        shoppingList[index].name = newName.trim();
+        saveItems(shoppingList);
+        renderItems();
+    }
+}
+
+//The initial rendering of items
+renderItems();
+    </script>
+</body>
+</html>
